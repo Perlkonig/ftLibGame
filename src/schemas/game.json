@@ -1,0 +1,155 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "$id": "https://www.abstractplay.com/schemas/fullthrust/game/1-0-0.json#",
+    "title": "Full Thrust Game",
+    "description": "Representation of a valid Full Thrust game",
+    "type": "object",
+    "properties": {
+        "header": {
+            "description": "List of meta information about the game",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "An arbitrary name/description of the game",
+                    "type": "string"
+                },
+                "universe": {
+                    "description": "A short description of the universe the game is taking place in (e.g., 'Babylon 5' or 'Star Trek')",
+                    "type": "string"
+                },
+                "campaign": {
+                    "description": "If this game is part of a larger campaign, give the campaign name here (should be consistent across all associated game reports)",
+                    "type": "string"
+                },
+                "players": {
+                    "description": "Player names",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "minItems": 1
+                },
+                "moderator": {
+                    "description": "Name of the game moderator, if applicable",
+                    "type": "string"
+                },
+                "dateStart": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "dateEnd": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "winner": {
+                    "type": "string"
+                }
+            }
+        },
+        "map": {
+            "description": "A description of the playing field",
+            "type": "object",
+            "properties": {
+                "dimensions": {
+                    "description": "If the map is fixed, give the dimensions here, otherwise each turn will have its own map dimensions.",
+                    "$ref": "#/$defs/dimensions"
+                },
+                "features": {
+                    "description": "List of stationary background features to add to the underlying map (e.g., planets, nebula, etc). Do *not* add moving or destructible objects here, like asteroids.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/mapFeature"
+                    }
+                }
+            }
+        },
+        "ships": {
+            "description": "To avoid duplicating largely unchanging ship definitions, they are stated in full only once, here. Each ship must have a universally unique ID (`uuid` property) that is then referenced by other objects in the schema.",
+            "type": "array",
+            "items": {
+                "$ref": "../../node_modules/ftlibship/dist/schemas/ship.json"
+            }
+        },
+        "turns": {
+            "description": "Each game consists of one or more turns. Each turn has a starting position followed by a list of 'commands' that change that starting position. The current visual state of any game turn is the sum of the starting position and all the commands to that point. The next turn's starting position is the sum of the previous turn's starting position and all commands. This makes it possible for a viewer to step forward and back both turn by turn and change by change. Commands can also be batched if they are tightly bound.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "initialState": {
+                        "description": "This is the starting state of the turn. It is the sum of the previous turn's starting state and all commands. It contains the essential information for all on-screen objects.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "objects.json"
+                        }
+                    },
+                    "commands": {
+                        "description": "List of commands to apply to the initial state. Applied in the order received."
+                    }
+                }
+            }
+        }
+    },
+    "$defs": {
+        "mapFeature": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "Unique identifier for this feature. Must match the `id` attribute in the associated SVG symbol",
+                    "type": "string"
+                },
+                "symbol": {
+                    "description": "All features must be expressed as an svg `<symbol>` tag with both a `viewBox` attribute and an `id` attribute that matches the `id` given above.",
+                    "type": "string"
+                },
+                "x": {
+                    "description": "Given in MUs.",
+                    "type": "number"
+                },
+                "y": {
+                    "description": "Given in MUs.",
+                    "type": "number"
+                },
+                "width": {
+                    "description": "Given in MUs.",
+                    "type": "number"
+                },
+                "height": {
+                    "description": "Given in MUs.",
+                    "type": "number"
+                }
+            },
+            "required": ["id", "symbol", "x", "y", "width", "height"]
+        },
+        "dimensions": {
+            "type": "object",
+            "properties": {
+                "topLeftCorner": {
+                    "$ref": "#/$defs/position"
+                },
+                "width": {
+                    "description": "Given in MUs.",
+                    "type": "number"
+                },
+                "height": {
+                    "description": "Given in MUs.",
+                    "type": "number"
+                }
+            },
+            "required": ["topLeftCorner", "width", "height"]
+        },
+        "position": {
+            "description": "Generic x,y coordinate object. All units are in MUs relative to 0,0.",
+            "type": "object",
+            "properties": {
+                "x": {
+                    "type": "number"
+                },
+                "y": {
+                    "type": "number"
+                }
+            },
+            "required": ["x", "y"]
+        }
+    }
+}
