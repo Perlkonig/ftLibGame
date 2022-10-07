@@ -19,7 +19,10 @@ export type FullThrustGameObjects =
        * The name of the owning player. Must appear in the `header.players` attribute.
        */
       owner: string;
-      position: Position;
+      /**
+       * Either valid x,y coordinates or `null` if the object is cloaked or otherwise invisible
+       */
+      position: Position | null;
       /**
        * Expressed as a clock facing.
        */
@@ -113,7 +116,7 @@ export type FullThrustGameObjects =
       [k: string]: unknown;
     }
   | {
-      objType: "ordnance";
+      objType: "other";
       /**
        * Every object needs a universally unique identifier
        */
@@ -136,12 +139,249 @@ export type FullThrustGameObjects =
        */
       speed?: number;
       [k: string]: unknown;
+    }
+  | ObjPlayer;
+/**
+ * Definitions of possible commands that change game state
+ */
+export type FullThrustGameCommands =
+  | {
+      name: "moveShip";
+      /**
+       * The uuid of the ship found in the `ships` section.
+       */
+      id: string;
+      position?: Position;
+      /**
+       * Expressed as a clock facing.
+       */
+      facing?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+      /**
+       * Expressed as degrees. If given, vector movement is assumed for this ship.
+       */
+      course?: number;
+      /**
+       * Current speed
+       */
+      speed?: number;
+      /**
+       * A list of movement vectors involved in this command. This will be simply added to the existing array.
+       *
+       * @minItems 2
+       */
+      vectors?: [Position, Position, ...Position[]];
+    }
+  | {
+      name: "layMine";
+      /**
+       * The uuid of the ship laying the mine.
+       */
+      ship: string;
+      position: Position1;
+    }
+  | {
+      name: "launchFighters";
+      /**
+       * The uuid of the launching ship.
+       */
+      ship: string;
+      /**
+       * The uuid of the fighter squadron being launched.
+       */
+      id: string;
+      position: Position;
+    }
+  | {
+      name: "launchOrdnance";
+      /**
+       * The uuid of the launching ship.
+       */
+      ship: string;
+      /**
+       * The uuid of the system being triggered. This is what determines the icon to display.
+       */
+      systemId?: string;
+      position: Position;
+    }
+  | {
+      name: "moveOrdnance";
+      /**
+       * Uuid of ordnance object
+       */
+      id: string;
+      position: Position;
+    }
+  | {
+      name: "useAmmo";
+      /**
+       * Uuid of the ship
+       */
+      ship: string;
+      /**
+       * Uuid of the launching system
+       */
+      systemId: string;
+    }
+  | {
+      name: "moveFighters";
+      /**
+       * Uuid of the fighter group
+       */
+      id: string;
+      /**
+       * Either a 'position' if launched, or a hangar id if docked.
+       */
+      position?: Hangar | Position;
+      /**
+       * Expressed as a clock facing.
+       */
+      facing?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+      /**
+       * A list of movement vectors. Added to the existing vector array.
+       *
+       * @minItems 2
+       */
+      vectors?: [Position, Position, ...Position[]];
+    }
+  | {
+      name: "adjustFighters";
+      /**
+       * Uuid of the fighter group
+       */
+      id: string;
+      /**
+       * The number of surviving fighters in the squadron
+       */
+      number?: number;
+      /**
+       * The squad's endurance, which is reset when recovered.
+       */
+      endurance?: number;
+      /**
+       * Only needed if you are playing with ace/turkey rules
+       */
+      skill?: "standard" | "ace" | "turkey";
+    }
+  | {
+      name: "fireWeapon";
+      /**
+       * The uuid of the firing ship
+       */
+      ship: string;
+      /**
+       * The uid of the firing weapon system
+       */
+      weapon: string;
+      /**
+       * The uuid of target being fired at, whether ship, ordnance, or other
+       */
+      target: string;
+    }
+  | {
+      name: "dmgShip";
+      /**
+       * The uuid of the ship object
+       */
+      ship: string;
+      /**
+       * Number of hull points lost
+       */
+      hull: number;
+      /**
+       * Number of boxes of armour lost. First element is the innermost shell.
+       *
+       * @minItems 1
+       */
+      armour?: [number, ...number[]];
+    }
+  | {
+      name: "regenArmour";
+      /**
+       * The uuid of the ship in question
+       */
+      ship: string;
+      /**
+       * Number of boxes of armour to repair. First element is the innermost shell.
+       *
+       * @minItems 1
+       */
+      armour: [number, ...number[]];
+    }
+  | {
+      name: "sysDisable";
+      /**
+       * Uuid of the ship
+       */
+      ship: string;
+      /**
+       * Uid of the system
+       */
+      system: string;
+      /**
+       * This is only helpful for humans to keep track of whether a system has been repaired before or not. The appearance in the game doesn't necessarily change.
+       */
+      state?: "damaged" | "destroyed";
+    }
+  | {
+      name: "sysEnable";
+      /**
+       * Uuid of the ship
+       */
+      ship: string;
+      /**
+       * Uid of the system
+       */
+      system: string;
+      /**
+       * This is only helpful for humans to keep track of whether a system has been repaired before or not. The appearance in the game doesn't necessarily change.
+       */
+      state?: "repaired" | null;
+    }
+  | {
+      name: "objDestroy";
+      /**
+       * Uuid of the object in question
+       */
+      uuid: string;
+    }
+  | {
+      name: "objHide";
+      /**
+       * Uuid of the object in question
+       */
+      uuid: string;
+    }
+  | {
+      name: "_custom";
+      msg: string;
     };
 
 /**
  * Representation of a valid Full Thrust game
  */
 export interface FullThrustGame {
+  /**
+   * If present, this signals that the game record is from a particular player's perspective and therefore incomplete. This only happens if you have someone moderating a closed-book game. Certain ships may contain little or no information.
+   */
+  perspective?: string;
+  /**
+   * Only present in a closed-book game. It signals what information is visible to each player about individual ships. Once fully visible to all players, the entry is removed, so once all ships have been revealed, this property should be removed.
+   */
+  masks?: {
+    /**
+     * The uid of the ship in question
+     */
+    ship: string;
+    /**
+     * The name of the player this mask affects. `ship` + `perspective` should be unique.
+     */
+    perspective: string;
+    /**
+     * A description of the type of data available. If all information is available, then simply remove the entry. Full information is the default state. The levels are as follows: (0) no information (bogey and general class); (1) true mass; (2) mass, drive, and screens; (3) full system list (original; nothing about current status of systems or hull).
+     */
+    detail: 0 | 1 | 2 | 3;
+    [k: string]: unknown;
+  }[];
   /**
    * List of meta information about the game
    */
@@ -199,9 +439,7 @@ export interface FullThrustGame {
     /**
      * List of commands to apply to the initial state. Applied in the order received.
      */
-    commands?: {
-      [k: string]: unknown;
-    };
+    commands?: FullThrustGameCommands[];
     [k: string]: unknown;
   }[];
   [k: string]: unknown;
@@ -547,6 +785,10 @@ export interface FullThrustShip {
    * Markdown-encoded flavour text attached to this particular ship.
    */
   notes?: string;
+  /**
+   * The symbol you'd want to represent this ship in a game viewer. It must be a `<symbol>` with a `viewBox` attribute. The `id` attribute is set by the renderer.
+   */
+  silhouette?: string;
   [k: string]: unknown;
 }
 export interface ObjFighters {
@@ -562,7 +804,11 @@ export interface ObjFighters {
   /**
    * Either a 'position' if launched, or a hangar id if docked.
    */
-  position?: string | Position;
+  position?: Hangar | Position;
+  /**
+   * Expressed as a clock facing.
+   */
+  facing?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
   /**
    * A list of movement vectors, usually rendered by drawing lines on the map. The first entry is the most recent and should be rendered most prominently. Each vector is itself an array of one or more points in the movement (showing course changes and the like).
    */
@@ -579,5 +825,39 @@ export interface ObjFighters {
    * Only needed if you are playing with ace/turkey rules
    */
   skill: "standard" | "ace" | "turkey";
+  [k: string]: unknown;
+}
+export interface Hangar {
+  /**
+   * The uuid of the ship the squadron is housed in.
+   */
+  ship?: string;
+  /**
+   * The uid of the hangar on that ship where the squadron is housed.
+   */
+  hangar?: string;
+  [k: string]: unknown;
+}
+/**
+ * Used for representing things that might change about a player over the course of the game; currently just victory points
+ */
+export interface ObjPlayer {
+  objType: "player";
+  /**
+   * The name of the player from the `header` field.
+   */
+  name: string;
+  /**
+   * Current victory point total
+   */
+  vp?: number;
+  [k: string]: unknown;
+}
+/**
+ * Generic x,y coordinate object. All units are in MUs relative to 0,0.
+ */
+export interface Position1 {
+  x: number;
+  y: number;
   [k: string]: unknown;
 }

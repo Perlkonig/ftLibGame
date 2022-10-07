@@ -5,6 +5,34 @@
     "description": "Representation of a valid Full Thrust game",
     "type": "object",
     "properties": {
+        "perspective": {
+            "description": "If present, this signals that the game record is from a particular player's perspective and therefore incomplete. This only happens if you have someone moderating a closed-book game. Certain ships may contain little or no information.",
+            "type": "string"
+        },
+        "masks": {
+            "description": "Only present in a closed-book game. It signals what information is visible to each player about individual ships. Once fully visible to all players, the entry is removed, so once all ships have been revealed, this property should be removed.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "ship": {
+                        "description": "The uid of the ship in question",
+                        "type": "string"
+                    },
+                    "perspective": {
+                        "description": "The name of the player this mask affects. `ship` + `perspective` should be unique.",
+                        "type": "string"
+                    },
+                    "detail": {
+                        "description": "A description of the type of data available. If all information is available, then simply remove the entry. Full information is the default state. The levels are as follows: (0) no information (bogey and general class); (1) true mass; (2) mass, drive, and screens; (3) full system list (original; nothing about current status of systems or hull).",
+                        "enum": [0, 1, 2, 3],
+                        "default": 0
+                    }
+                },
+                "required": ["ship", "perspective", "detail"],
+                "additionalItems": false
+            }
+        },
         "header": {
             "description": "List of meta information about the game",
             "type": "object",
@@ -84,7 +112,11 @@
                         }
                     },
                     "commands": {
-                        "description": "List of commands to apply to the initial state. Applied in the order received."
+                        "description": "List of commands to apply to the initial state. Applied in the order received.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "commands.json"
+                        }
                     }
                 }
             }

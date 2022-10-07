@@ -21,7 +21,15 @@
                     "type": "string"
                 },
                 "position": {
-                    "$ref": "game.json#/$defs/position"
+                    "description": "Either valid x,y coordinates or `null` if the object is cloaked or otherwise invisible",
+                    "oneOf": [
+                        {
+                            "$ref": "game.json#/$defs/position"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
                 },
                 "facing": {
                     "description": "Expressed as a clock facing.",
@@ -155,7 +163,7 @@
             "type": "object",
             "properties": {
                 "objType": {
-                    "enum": ["ordnance"]
+                    "enum": ["other"]
                 },
                 "id": {
                     "description": "Every object needs a universally unique identifier",
@@ -185,6 +193,9 @@
                 }
             },
             "required": ["objType", "id", "type", "position"]
+        },
+        {
+            "$ref": "#/$defs/objPlayer"
         }
     ],
     "$defs": {
@@ -206,12 +217,16 @@
                     "description": "Either a 'position' if launched, or a hangar id if docked.",
                     "oneOf": [
                         {
-                            "type": "string"
+                            "$ref": "#/$defs/hangar"
                         },
                         {
                             "$ref": "game.json#/$defs/position"
                         }
                     ]
+                },
+                "facing": {
+                    "description": "Expressed as a clock facing.",
+                    "enum": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
                 },
                 "vectors": {
                     "description": "A list of movement vectors, usually rendered by drawing lines on the map. The first entry is the most recent and should be rendered most prominently. Each vector is itself an array of one or more points in the movement (showing course changes and the like).",
@@ -243,6 +258,38 @@
                 }
             },
             "required": ["objType", "id", "owner", "number", "endurance", "skill"]
+        },
+        "hangar": {
+            "type": "object",
+            "properties": {
+                "ship": {
+                    "description": "The uuid of the ship the squadron is housed in.",
+                    "type": "string"
+                },
+                "hangar": {
+                    "description": "The uid of the hangar on that ship where the squadron is housed.",
+                    "type": "string"
+                }
+            }
+        },
+        "objPlayer": {
+            "description": "Used for representing things that might change about a player over the course of the game; currently just victory points",
+            "type": "object",
+            "properties": {
+                "objType": {
+                    "enum": ["player"]
+                },
+                "name": {
+                    "description": "The name of the player from the `header` field.",
+                    "type": "string"
+                },
+                "vp": {
+                    "description": "Current victory point total",
+                    "type": "number",
+                    "default": 0
+                }
+            },
+            "required": ["objType", "name"]
         }
     }
 }
