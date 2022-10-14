@@ -5,6 +5,9 @@ import type { FullThrustGame } from "./index.js";
 import schema from "./schemas/bundled.json";
 const ajv = new Ajv.default({allErrors: true});
 const ajvValidate = ajv.compile<FullThrustGame>(schema);
+import stringify from "json-stringify-deterministic";
+import sha256 from 'crypto-js/sha256.js';
+import Hex from 'crypto-js/enc-hex.js';
 
 export enum EvalErrorCode {
     NoObject="NOOBJECT",
@@ -52,4 +55,21 @@ export const validate = (shipJson: string): IValidation => {
     }
 
     return results;
+}
+
+export const hashTurns = (obj: FullThrustGame): string | undefined => {
+    if (obj.turns === undefined) {
+        return undefined;
+    }
+    const hash = sha256(stringify(obj.turns));
+    return Hex.stringify(hash);
+}
+
+export const hashFleets = (obj: FullThrustGame): string | undefined => {
+    if (obj.ships === undefined) {
+        return undefined;
+    }
+    const sorted = [...obj.ships].sort((a, b) => a.uuid!.localeCompare(b.uuid!));
+    const hash = sha256(stringify(sorted));
+    return Hex.stringify(hash);
 }
