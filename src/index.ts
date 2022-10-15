@@ -73,3 +73,8 @@ export const hashFleets = (obj: FullThrustGame): string | undefined => {
     const hash = sha256(stringify(sorted));
     return Hex.stringify(hash);
 }
+
+export const hashFull = (obj: FullThrustGame): string => {
+    const hash = sha256(stringify(obj));
+    return Hex.stringify(hash);
+}
