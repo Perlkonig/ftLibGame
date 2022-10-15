@@ -22,7 +22,11 @@ export type FullThrustGameObjects =
       /**
        * Either valid x,y coordinates or `null` if the object is cloaked or otherwise invisible
        */
-      position: Position | null;
+      position: {
+        x: number;
+        y: number;
+        [k: string]: unknown;
+      } | null;
       /**
        * Expressed as a clock facing.
        */
@@ -38,11 +42,94 @@ export type FullThrustGameObjects =
       /**
        * A list of movement vectors, usually rendered by drawing lines on the map. The first entry is the most recent and should be rendered most prominently. Each vector is itself an array of one or more points in the movement (showing course changes and the like).
        */
-      vectors?: [Position, Position, ...Position[]][];
+      vectors?: [
+        {
+          x: number;
+          y: number;
+          [k: string]: unknown;
+        },
+        {
+          x: number;
+          y: number;
+          [k: string]: unknown;
+        },
+        ...{
+          x: number;
+          y: number;
+          [k: string]: unknown;
+        }[]
+      ][];
       /**
        * Unlike other objects and systems, fighter objects are created at the start of the game and are tracked throughout.
        */
-      fighters?: ObjFighters[];
+      fighters?: {
+        objType: "fighters";
+        /**
+         * The uuid of the squadron found in the `ships.fighters` section.
+         */
+        id: string;
+        /**
+         * The name of the owning player. Must appear in the `header.players` attribute.
+         */
+        owner: string;
+        /**
+         * Either a 'position' if launched, or a hangar id if docked.
+         */
+        position?:
+          | {
+              /**
+               * The uuid of the ship the squadron is housed in.
+               */
+              ship?: string;
+              /**
+               * The uid of the hangar on that ship where the squadron is housed.
+               */
+              hangar?: string;
+              [k: string]: unknown;
+            }
+          | {
+              x: number;
+              y: number;
+              [k: string]: unknown;
+            };
+        /**
+         * Expressed as a clock facing.
+         */
+        facing?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+        /**
+         * A list of movement vectors, usually rendered by drawing lines on the map. The first entry is the most recent and should be rendered most prominently. Each vector is itself an array of one or more points in the movement (showing course changes and the like).
+         */
+        vectors?: [
+          {
+            x: number;
+            y: number;
+            [k: string]: unknown;
+          },
+          {
+            x: number;
+            y: number;
+            [k: string]: unknown;
+          },
+          ...{
+            x: number;
+            y: number;
+            [k: string]: unknown;
+          }[]
+        ][];
+        /**
+         * The number of surviving fighters in the squadron
+         */
+        number: number;
+        /**
+         * The squad's endurance, which is reset when recovered.
+         */
+        endurance: number;
+        /**
+         * Only needed if you are playing with ace/turkey rules
+         */
+        skill: "standard" | "ace" | "turkey";
+        [k: string]: unknown;
+      }[];
       /**
        * Lists any damaged/repaired systems. A system not listed here is considered pristine.
        */
@@ -89,7 +176,74 @@ export type FullThrustGameObjects =
       ammo?: string[];
       [k: string]: unknown;
     }
-  | ObjFighters
+  | {
+      objType: "fighters";
+      /**
+       * The uuid of the squadron found in the `ships.fighters` section.
+       */
+      id: string;
+      /**
+       * The name of the owning player. Must appear in the `header.players` attribute.
+       */
+      owner: string;
+      /**
+       * Either a 'position' if launched, or a hangar id if docked.
+       */
+      position?:
+        | {
+            /**
+             * The uuid of the ship the squadron is housed in.
+             */
+            ship?: string;
+            /**
+             * The uid of the hangar on that ship where the squadron is housed.
+             */
+            hangar?: string;
+            [k: string]: unknown;
+          }
+        | {
+            x: number;
+            y: number;
+            [k: string]: unknown;
+          };
+      /**
+       * Expressed as a clock facing.
+       */
+      facing?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+      /**
+       * A list of movement vectors, usually rendered by drawing lines on the map. The first entry is the most recent and should be rendered most prominently. Each vector is itself an array of one or more points in the movement (showing course changes and the like).
+       */
+      vectors?: [
+        {
+          x: number;
+          y: number;
+          [k: string]: unknown;
+        },
+        {
+          x: number;
+          y: number;
+          [k: string]: unknown;
+        },
+        ...{
+          x: number;
+          y: number;
+          [k: string]: unknown;
+        }[]
+      ][];
+      /**
+       * The number of surviving fighters in the squadron
+       */
+      number: number;
+      /**
+       * The squad's endurance, which is reset when recovered.
+       */
+      endurance: number;
+      /**
+       * Only needed if you are playing with ace/turkey rules
+       */
+      skill: "standard" | "ace" | "turkey";
+      [k: string]: unknown;
+    }
   | {
       objType: "ordnance";
       /**
@@ -108,7 +262,14 @@ export type FullThrustGameObjects =
        * If `type` is `_other`, then you can provide an SVG silhouette here, otherwise a generic marker will be used. The SVG must be a `<symbol>` tag with a `viewBox` attribute and an `id` attribute of the id provided above.
        */
       silhouette?: string;
-      position: Position;
+      /**
+       * Generic x,y coordinate object. All units are in MUs relative to 0,0.
+       */
+      position: {
+        x: number;
+        y: number;
+        [k: string]: unknown;
+      };
       /**
        * If given, hints to the renderer what to display if the object is clicked. Usually used to show a homing or explosion range. Expressed in MUs.
        */
@@ -129,7 +290,14 @@ export type FullThrustGameObjects =
        * If `type` is `_other`, then you can provide an SVG silhouette here, otherwise a generic marker will be used. The SVG must be a `<symbol>` tag with a `viewBox` attribute and an `id` attribute of the id provided above.
        */
       silhouette?: string;
-      position: Position;
+      /**
+       * Generic x,y coordinate object. All units are in MUs relative to 0,0.
+       */
+      position: {
+        x: number;
+        y: number;
+        [k: string]: unknown;
+      };
       /**
        * These objects can be made to move in an arbitrary direction. Given as degrees
        */
@@ -140,7 +308,18 @@ export type FullThrustGameObjects =
       speed?: number;
       [k: string]: unknown;
     }
-  | ObjPlayer;
+  | {
+      objType: "player";
+      /**
+       * The name of the player from the `header` field.
+       */
+      name: string;
+      /**
+       * Current victory point total
+       */
+      vp?: number;
+      [k: string]: unknown;
+    };
 /**
  * Definitions of possible commands that change game state
  */
@@ -151,7 +330,14 @@ export type FullThrustGameCommands =
        * The uuid of the ship found in the `ships` section.
        */
       id: string;
-      position?: Position;
+      /**
+       * Generic x,y coordinate object. All units are in MUs relative to 0,0.
+       */
+      position?: {
+        x: number;
+        y: number;
+        [k: string]: unknown;
+      };
       /**
        * Expressed as a clock facing.
        */
@@ -169,7 +355,23 @@ export type FullThrustGameCommands =
        *
        * @minItems 2
        */
-      vectors?: [Position, Position, ...Position[]];
+      vectors?: [
+        {
+          x: number;
+          y: number;
+          [k: string]: unknown;
+        },
+        {
+          x: number;
+          y: number;
+          [k: string]: unknown;
+        },
+        ...{
+          x: number;
+          y: number;
+          [k: string]: unknown;
+        }[]
+      ];
     }
   | {
       name: "layMine";
@@ -177,7 +379,14 @@ export type FullThrustGameCommands =
        * The uuid of the ship laying the mine.
        */
       ship: string;
-      position: Position1;
+      /**
+       * Generic x,y coordinate object. All units are in MUs relative to 0,0.
+       */
+      position: {
+        x: number;
+        y: number;
+        [k: string]: unknown;
+      };
     }
   | {
       name: "launchFighters";
@@ -189,7 +398,14 @@ export type FullThrustGameCommands =
        * The uuid of the fighter squadron being launched.
        */
       id: string;
-      position: Position;
+      /**
+       * Generic x,y coordinate object. All units are in MUs relative to 0,0.
+       */
+      position: {
+        x: number;
+        y: number;
+        [k: string]: unknown;
+      };
     }
   | {
       name: "launchOrdnance";
@@ -201,7 +417,14 @@ export type FullThrustGameCommands =
        * The uuid of the system being triggered. This is what determines the icon to display.
        */
       systemId?: string;
-      position: Position;
+      /**
+       * Generic x,y coordinate object. All units are in MUs relative to 0,0.
+       */
+      position: {
+        x: number;
+        y: number;
+        [k: string]: unknown;
+      };
     }
   | {
       name: "moveOrdnance";
@@ -209,7 +432,14 @@ export type FullThrustGameCommands =
        * Uuid of ordnance object
        */
       id: string;
-      position: Position;
+      /**
+       * Generic x,y coordinate object. All units are in MUs relative to 0,0.
+       */
+      position: {
+        x: number;
+        y: number;
+        [k: string]: unknown;
+      };
     }
   | {
       name: "useAmmo";
@@ -231,7 +461,23 @@ export type FullThrustGameCommands =
       /**
        * Either a 'position' if launched, or a hangar id if docked.
        */
-      position?: Hangar | Position;
+      position?:
+        | {
+            /**
+             * The uuid of the ship the squadron is housed in.
+             */
+            ship?: string;
+            /**
+             * The uid of the hangar on that ship where the squadron is housed.
+             */
+            hangar?: string;
+            [k: string]: unknown;
+          }
+        | {
+            x: number;
+            y: number;
+            [k: string]: unknown;
+          };
       /**
        * Expressed as a clock facing.
        */
@@ -241,7 +487,23 @@ export type FullThrustGameCommands =
        *
        * @minItems 2
        */
-      vectors?: [Position, Position, ...Position[]];
+      vectors?: [
+        {
+          x: number;
+          y: number;
+          [k: string]: unknown;
+        },
+        {
+          x: number;
+          y: number;
+          [k: string]: unknown;
+        },
+        ...{
+          x: number;
+          y: number;
+          [k: string]: unknown;
+        }[]
+      ];
     }
   | {
       name: "adjustFighters";
@@ -416,11 +678,58 @@ export interface FullThrustGame {
    * A description of the playing field
    */
   map?: {
-    dimensions?: Dimensions;
+    /**
+     * If the map is fixed, give the dimensions here, otherwise each turn will have its own map dimensions.
+     */
+    dimensions?: {
+      /**
+       * Generic x,y coordinate object. All units are in MUs relative to 0,0.
+       */
+      topLeftCorner: {
+        x: number;
+        y: number;
+        [k: string]: unknown;
+      };
+      /**
+       * Given in MUs.
+       */
+      width: number;
+      /**
+       * Given in MUs.
+       */
+      height: number;
+      [k: string]: unknown;
+    };
     /**
      * List of stationary background features to add to the underlying map (e.g., planets, nebula, etc). Do *not* add moving or destructible objects here, like asteroids.
      */
-    features?: MapFeature[];
+    features?: {
+      /**
+       * Unique identifier for this feature. Must match the `id` attribute in the associated SVG symbol
+       */
+      id: string;
+      /**
+       * All features must be expressed as an svg `<symbol>` tag with both a `viewBox` attribute and an `id` attribute that matches the `id` given above.
+       */
+      symbol: string;
+      /**
+       * Given in MUs.
+       */
+      x: number;
+      /**
+       * Given in MUs.
+       */
+      y: number;
+      /**
+       * Given in MUs.
+       */
+      width: number;
+      /**
+       * Given in MUs.
+       */
+      height: number;
+      [k: string]: unknown;
+    }[];
     [k: string]: unknown;
   };
   /**
@@ -441,56 +750,6 @@ export interface FullThrustGame {
     commands?: FullThrustGameCommands[];
     [k: string]: unknown;
   }[];
-  [k: string]: unknown;
-}
-/**
- * If the map is fixed, give the dimensions here, otherwise each turn will have its own map dimensions.
- */
-export interface Dimensions {
-  topLeftCorner: Position;
-  /**
-   * Given in MUs.
-   */
-  width: number;
-  /**
-   * Given in MUs.
-   */
-  height: number;
-  [k: string]: unknown;
-}
-/**
- * Generic x,y coordinate object. All units are in MUs relative to 0,0.
- */
-export interface Position {
-  x: number;
-  y: number;
-  [k: string]: unknown;
-}
-export interface MapFeature {
-  /**
-   * Unique identifier for this feature. Must match the `id` attribute in the associated SVG symbol
-   */
-  id: string;
-  /**
-   * All features must be expressed as an svg `<symbol>` tag with both a `viewBox` attribute and an `id` attribute that matches the `id` given above.
-   */
-  symbol: string;
-  /**
-   * Given in MUs.
-   */
-  x: number;
-  /**
-   * Given in MUs.
-   */
-  y: number;
-  /**
-   * Given in MUs.
-   */
-  width: number;
-  /**
-   * Given in MUs.
-   */
-  height: number;
   [k: string]: unknown;
 }
 /**
@@ -548,6 +807,7 @@ export interface FullThrustShip {
         name: "screen";
         advanced?: boolean;
         area?: boolean;
+        level?: 1 | 2;
         [k: string]: unknown;
       }
     | {
@@ -788,75 +1048,5 @@ export interface FullThrustShip {
    * The symbol you'd want to represent this ship in a game viewer. It must be a `<symbol>` with a `viewBox` attribute. The `id` attribute is set by the renderer.
    */
   silhouette?: string;
-  [k: string]: unknown;
-}
-export interface ObjFighters {
-  objType: "fighters";
-  /**
-   * The uuid of the squadron found in the `ships.fighters` section.
-   */
-  id: string;
-  /**
-   * The name of the owning player. Must appear in the `header.players` attribute.
-   */
-  owner: string;
-  /**
-   * Either a 'position' if launched, or a hangar id if docked.
-   */
-  position?: Hangar | Position;
-  /**
-   * Expressed as a clock facing.
-   */
-  facing?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
-  /**
-   * A list of movement vectors, usually rendered by drawing lines on the map. The first entry is the most recent and should be rendered most prominently. Each vector is itself an array of one or more points in the movement (showing course changes and the like).
-   */
-  vectors?: [Position, Position, ...Position[]][];
-  /**
-   * The number of surviving fighters in the squadron
-   */
-  number: number;
-  /**
-   * The squad's endurance, which is reset when recovered.
-   */
-  endurance: number;
-  /**
-   * Only needed if you are playing with ace/turkey rules
-   */
-  skill: "standard" | "ace" | "turkey";
-  [k: string]: unknown;
-}
-export interface Hangar {
-  /**
-   * The uuid of the ship the squadron is housed in.
-   */
-  ship?: string;
-  /**
-   * The uid of the hangar on that ship where the squadron is housed.
-   */
-  hangar?: string;
-  [k: string]: unknown;
-}
-/**
- * Used for representing things that might change about a player over the course of the game; currently just victory points
- */
-export interface ObjPlayer {
-  objType: "player";
-  /**
-   * The name of the player from the `header` field.
-   */
-  name: string;
-  /**
-   * Current victory point total
-   */
-  vp?: number;
-  [k: string]: unknown;
-}
-/**
- * Generic x,y coordinate object. All units are in MUs relative to 0,0.
- */
-export interface Position1 {
-  x: number;
-  y: number;
   [k: string]: unknown;
 }

@@ -1,9 +1,11 @@
 export type { FullThrustGame } from "./schemas/game.js";
 
 import Ajv from "ajv";
+import addFormats from "ajv-formats";
 import type { FullThrustGame } from "./index.js";
-import schema from "./schemas/bundled.json";
+import schema from "./schemas/bundled.json"; // assert { type: "json" }; // add assertion to testing, but not to production
 const ajv = new Ajv.default({allErrors: true});
+addFormats.default(ajv, ["date"]);
 const ajvValidate = ajv.compile<FullThrustGame>(schema);
 import stringify from "json-stringify-deterministic";
 import sha256 from 'crypto-js/sha256.js';
