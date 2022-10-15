@@ -30,7 +30,7 @@
                     }
                 },
                 "required": ["ship", "perspective", "detail"],
-                "additionalItems": false
+                "additionalProperties": false
             }
         },
         "header": {

@@ -380,7 +380,6 @@ export interface FullThrustGame {
      * A description of the type of data available. If all information is available, then simply remove the entry. Full information is the default state. The levels are as follows: (0) no information (bogey and general class); (1) true mass; (2) mass, drive, and screens; (3) full system list (original; nothing about current status of systems or hull).
      */
     detail: 0 | 1 | 2 | 3;
-    [k: string]: unknown;
   }[];
   /**
    * List of meta information about the game
