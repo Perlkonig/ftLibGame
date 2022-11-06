@@ -92,10 +92,13 @@
             }
         },
         "ships": {
-            "description": "To avoid duplicating largely unchanging ship definitions, they are stated in full only once, here. Each ship must have a universally unique ID (`uuid` property) that is then referenced by other objects in the schema.",
+            "description": "To avoid duplicating largely unchanging ship definitions, they are stated in full only once, here. This is a two-dimensional array. The first level  assigns ownership of each ship. The fleets must be presented in the same order as the `header.players` attribute. Each ship must have a universally (file-wide) unique ID (`uuid` property).",
             "type": "array",
             "items": {
-                "$ref": "../../node_modules/ftlibship/dist/schemas/ship.json"
+                "type": "array",
+                "items": {
+                    "$ref": "../../node_modules/ftlibship/dist/schemas/ship.json"
+                }
             }
         },
         "turns": {
