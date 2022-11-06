@@ -71,8 +71,8 @@ export const hashFleets = (obj: FullThrustGame): string | undefined => {
     if (obj.ships === undefined) {
         return undefined;
     }
-    const sorted = [...obj.ships].sort((a, b) => a.uuid!.localeCompare(b.uuid!));
-    const hash = sha256(stringify(sorted));
+    // const sorted = [...obj.ships].sort((a, b) => a.uuid!.localeCompare(b.uuid!));
+    const hash = sha256(stringify(obj.ships));
     return Hex.stringify(hash);
 }
 
