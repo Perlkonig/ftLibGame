@@ -25,7 +25,6 @@ export type FullThrustGameObjects =
       position: {
         x: number;
         y: number;
-        [k: string]: unknown;
       } | null;
       /**
        * Expressed as a clock facing.
@@ -46,17 +45,14 @@ export type FullThrustGameObjects =
         {
           x: number;
           y: number;
-          [k: string]: unknown;
         },
         {
           x: number;
           y: number;
-          [k: string]: unknown;
         },
         ...{
           x: number;
           y: number;
-          [k: string]: unknown;
         }[]
       ][];
       /**
@@ -90,7 +86,6 @@ export type FullThrustGameObjects =
           | {
               x: number;
               y: number;
-              [k: string]: unknown;
             };
         /**
          * Expressed as a clock facing.
@@ -103,17 +98,14 @@ export type FullThrustGameObjects =
           {
             x: number;
             y: number;
-            [k: string]: unknown;
           },
           {
             x: number;
             y: number;
-            [k: string]: unknown;
           },
           ...{
             x: number;
             y: number;
-            [k: string]: unknown;
           }[]
         ][];
         /**
@@ -204,7 +196,6 @@ export type FullThrustGameObjects =
         | {
             x: number;
             y: number;
-            [k: string]: unknown;
           };
       /**
        * Expressed as a clock facing.
@@ -217,17 +208,14 @@ export type FullThrustGameObjects =
         {
           x: number;
           y: number;
-          [k: string]: unknown;
         },
         {
           x: number;
           y: number;
-          [k: string]: unknown;
         },
         ...{
           x: number;
           y: number;
-          [k: string]: unknown;
         }[]
       ][];
       /**
@@ -268,7 +256,6 @@ export type FullThrustGameObjects =
       position: {
         x: number;
         y: number;
-        [k: string]: unknown;
       };
       /**
        * If given, hints to the renderer what to display if the object is clicked. Usually used to show a homing or explosion range. Expressed in MUs.
@@ -296,7 +283,6 @@ export type FullThrustGameObjects =
       position: {
         x: number;
         y: number;
-        [k: string]: unknown;
       };
       /**
        * These objects can be made to move in an arbitrary direction. Given as degrees
@@ -336,7 +322,6 @@ export type FullThrustGameCommands =
       position?: {
         x: number;
         y: number;
-        [k: string]: unknown;
       };
       /**
        * Expressed as a clock facing.
@@ -359,17 +344,14 @@ export type FullThrustGameCommands =
         {
           x: number;
           y: number;
-          [k: string]: unknown;
         },
         {
           x: number;
           y: number;
-          [k: string]: unknown;
         },
         ...{
           x: number;
           y: number;
-          [k: string]: unknown;
         }[]
       ];
     }
@@ -385,7 +367,6 @@ export type FullThrustGameCommands =
       position: {
         x: number;
         y: number;
-        [k: string]: unknown;
       };
     }
   | {
@@ -404,7 +385,6 @@ export type FullThrustGameCommands =
       position: {
         x: number;
         y: number;
-        [k: string]: unknown;
       };
     }
   | {
@@ -423,7 +403,6 @@ export type FullThrustGameCommands =
       position: {
         x: number;
         y: number;
-        [k: string]: unknown;
       };
     }
   | {
@@ -438,7 +417,6 @@ export type FullThrustGameCommands =
       position: {
         x: number;
         y: number;
-        [k: string]: unknown;
       };
     }
   | {
@@ -476,7 +454,6 @@ export type FullThrustGameCommands =
         | {
             x: number;
             y: number;
-            [k: string]: unknown;
           };
       /**
        * Expressed as a clock facing.
@@ -491,17 +468,14 @@ export type FullThrustGameCommands =
         {
           x: number;
           y: number;
-          [k: string]: unknown;
         },
         {
           x: number;
           y: number;
-          [k: string]: unknown;
         },
         ...{
           x: number;
           y: number;
-          [k: string]: unknown;
         }[]
       ];
     }
@@ -688,7 +662,6 @@ export interface FullThrustGame {
       topLeftCorner: {
         x: number;
         y: number;
-        [k: string]: unknown;
       };
       /**
        * Given in MUs.
@@ -698,7 +671,6 @@ export interface FullThrustGame {
        * Given in MUs.
        */
       height: number;
-      [k: string]: unknown;
     };
     /**
      * List of stationary background features to add to the underlying map (e.g., planets, nebula, etc). Do *not* add moving or destructible objects here, like asteroids.
@@ -728,14 +700,13 @@ export interface FullThrustGame {
        * Given in MUs.
        */
       height: number;
-      [k: string]: unknown;
     }[];
     [k: string]: unknown;
   };
   /**
-   * To avoid duplicating largely unchanging ship definitions, they are stated in full only once, here. Each ship must have a universally unique ID (`uuid` property) that is then referenced by other objects in the schema.
+   * To avoid duplicating largely unchanging ship definitions, they are stated in full only once, here. This is a two-dimensional array. The first level  assigns ownership of each ship. The fleets must be presented in the same order as the `header.players` attribute. Each ship must have a universally (file-wide) unique ID (`uuid` property).
    */
-  ships?: FullThrustShip[];
+  ships?: FullThrustShip[][];
   /**
    * Each game consists of one or more turns. Each turn has a starting position followed by a list of 'commands' that change that starting position. The current visual state of any game turn is the sum of the starting position and all the commands to that point. The next turn's starting position is the sum of the previous turn's starting position and all commands. This makes it possible for a viewer to step forward and back both turn by turn and change by change. Commands can also be batched if they are tightly bound.
    */
@@ -1033,6 +1004,13 @@ export interface FullThrustShip {
      */
     skill?: "standard" | "ace" | "turkey";
     [k: string]: unknown;
+  }[];
+  /**
+   * A list of active enemy units currently on the ship.
+   */
+  invaders?: {
+    type: "marine" | "damageControl";
+    owner?: string | number;
   }[];
   class?: string;
   name?: string;

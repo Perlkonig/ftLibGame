@@ -154,7 +154,8 @@
                     "type": "number"
                 }
             },
-            "required": ["id", "symbol", "x", "y", "width", "height"]
+            "required": ["id", "symbol", "x", "y", "width", "height"],
+            "additionalProperties": false
         },
         "dimensions": {
             "type": "object",
@@ -171,7 +172,8 @@
                     "type": "number"
                 }
             },
-            "required": ["topLeftCorner", "width", "height"]
+            "required": ["topLeftCorner", "width", "height"],
+            "additionalProperties": false
         },
         "position": {
             "description": "Generic x,y coordinate object. All units are in MUs relative to 0,0.",
@@ -184,7 +186,8 @@
                     "type": "number"
                 }
             },
-            "required": ["x", "y"]
+            "required": ["x", "y"],
+            "additionalProperties": false
         }
     }
 }
