@@ -1009,8 +1009,9 @@ export interface FullThrustShip {
    * A list of active enemy units currently on the ship.
    */
   invaders?: {
-    type: "marine" | "damageControl";
+    type: "marines" | "damageControl";
     owner?: string | number;
+    [k: string]: unknown;
   }[];
   class?: string;
   name?: string;
