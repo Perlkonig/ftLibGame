@@ -58,13 +58,6 @@
                         "minItems": 2
                     }
                 },
-                "fighters": {
-                    "description": "Unlike other objects and systems, fighter objects are created at the start of the game and are tracked throughout.",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/$defs/objFighters"
-                    }
-                },
                 "systems": {
                     "description": "Lists any damaged/repaired systems. A system not listed here is considered pristine.",
                     "type": "array",
